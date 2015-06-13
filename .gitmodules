@@ -1,0 +1,3 @@
+[submodule "src/nextdoor"]
+	path = src/nextdoor
+	url = https://github.com/ruiaf/nextdoor.git
