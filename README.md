@@ -1,2 +1,2 @@
 # likewise
-Image similarity engine
+Image similarity engine with a web interface
