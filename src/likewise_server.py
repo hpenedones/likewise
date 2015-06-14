@@ -1,17 +1,16 @@
-import sys
-import math
-from bottle import Bottle, route, run, static_file, request
-import operator
-import os
-import time
-import numpy as np
-from scipy.spatial import distance
-import random
 import argparse
+import os
+import operator
+import random
+import sys
+import time
+
+from scipy.spatial import distance
+import numpy as np
+from bottle import Bottle, route, run, static_file, request, template
 from nextdoor.nextdoor import NearestNeighborsIndex
 
 app = Bottle()
-
 
 @app.route('/images/<image_index:int>')
 def send_image(image_index):
@@ -27,20 +26,14 @@ def nearest(image_key, n):
 	start = time.time()
 	nearest = index.knearest(index[image_key], n)
 	
-	response = ""
+	images = []
 	for i in nearest:
-		img_url = "/images/%d" % (i)
-		nearest_url = "/nearest/%d/%d" % (n, i)
-		response += "<a href=\"%s\"><img src=\"%s\"></a> %s\n" %\
-			(nearest_url,
-			 img_url,
-			 str(distance.euclidean(index[i], index[image_key])))
-		
-	end = time.time()
-	print str(end - start) + " secs"
+		image = {}
+		image['key'] = i
+		image['distance'] = distance.euclidean(index[i], index[image_key])
+		images.append(image)
 
-	return response
-
+	return template('likewise', images=images, pagination=(0,n))
 
 def read_features(features_filepath, num_features):
 	index = NearestNeighborsIndex()
@@ -56,7 +49,6 @@ def read_features(features_filepath, num_features):
 	return keymap, index
 
 # command line arguments
-
 parser = argparse.ArgumentParser(description='Image similarity and labeling web server')
 parser.add_argument("--port", type=int, default=8080, help="tcp port to run server on")
 parser.add_argument("--nfeat", type=int, default=3072, help="expected dimensionality of the feature vector")
@@ -69,4 +61,3 @@ args = parser.parse_args()
 keymap, index = read_features(args.features_filepath, args.nfeat)
 
 run(app, host=args.hostname, port=args.port)
-
