@@ -3,7 +3,7 @@
 	<div class="nearimage">
 	<div class="crop">
 	<a href="/nearest/{{pagination[1]}}/{{image['key']}}">
-		<img class="centered" src="/images/{{image['key']}}" />
+		<img class="centered" src="{{image['url']}}" />
 	</a>
 	</div>
 	<p>Image: {{image['key']}}</p>

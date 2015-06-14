@@ -12,11 +12,12 @@ from nextdoor.nextdoor import NearestNeighborsIndex
 
 app = Bottle()
 
-@app.route('/images/<image_index:int>')
-def send_image(image_index):
-	return static_file(keymap[image_index], "/", mimetype='image/jpg')
+@app.route('/images/<image_path:path>')
+def send_image(image_path):
+	return static_file(image_path, "/", mimetype='image/jpg')
 
 @app.route('/random')
+@app.route('/')
 def random_sample():
 	rand_key = random.choice(index.keys())
 	return nearest(rand_key, 20)
@@ -30,6 +31,7 @@ def nearest(image_key, n):
 	for i in nearest:
 		image = {}
 		image['key'] = i
+		image['url'] = "/images/%s" % (keymap[i])
 		image['distance'] = distance.euclidean(index[i], index[image_key])
 		images.append(image)
 
