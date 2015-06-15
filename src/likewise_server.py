@@ -19,7 +19,7 @@ def send_image(image_path):
 @app.route('/random')
 @app.route('/')
 def random_sample():
-	rand_key = random.choice(index.keys())
+	rand_key = random.randint(0, len(keymap))
 	return nearest(rand_key, 20)
 
 @app.route('/nearest/<n:int>/<image_key:int>')
