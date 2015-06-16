@@ -76,4 +76,4 @@ logging.basicConfig(level=logging.DEBUG,
 
 keymap, index = read_features(args.features_filepath, args.nfeat)
 
-run(app, host=args.hostname, port=args.port)
+run(app, server='paste', host=args.hostname, port=args.port)
