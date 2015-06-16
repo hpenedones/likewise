@@ -4,11 +4,20 @@ import operator
 import random
 import sys
 import time
+import logging
 
 from scipy.spatial import distance
 import numpy as np
 from bottle import Bottle, route, run, static_file, request, template
 from nextdoor.nextdoor import NearestNeighborsIndex
+
+def perflog(func):
+    def wrap(*args, **kwargs):
+        started_at = time.time()
+        result = func(*args, **kwargs)
+        logging.debug("Method '%s' took %dms", func.__name__, int((time.time() - started_at)*1000))
+        return result
+    return wrap
 
 app = Bottle()
 
@@ -23,8 +32,8 @@ def random_sample():
 	return nearest(rand_key, 20)
 
 @app.route('/nearest/<n:int>/<image_key:int>')
+@perflog
 def nearest(image_key, n):
-	start = time.time()
 	nearest = index.knearest(index[image_key], n)
 	
 	images = []
@@ -37,6 +46,7 @@ def nearest(image_key, n):
 
 	return template('likewise', images=images, pagination=(0,n))
 
+@perflog
 def read_features(features_filepath, num_features):
 	index = NearestNeighborsIndex()
 	keymap = {}
@@ -59,6 +69,10 @@ parser.add_argument("--separator", default="\t", help="token separator in input 
 parser.add_argument("features_filepath", help="path to file containing image paths followed by their feature vector")
 
 args = parser.parse_args()
+
+# set logging
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(levelname)-8s %(asctime)-26s %(message)s')
 
 keymap, index = read_features(args.features_filepath, args.nfeat)
 
